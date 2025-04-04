@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Μετατροπή Αριθμών - Φιλικό για Μαθητές</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f4ff;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            background-color: #ffffff;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        select, input {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Μετατροπή Αριθμών</h1>
+    <p>Επίλεξε το σύστημα εισόδου και εξόδου και παρακολούθησε τα βήματα μετατροπής!</p>
+
+    <input type="text" id="numberInput" placeholder="Πληκτρολόγησε τον αριθμό σου">
+    <select id="inputBase">
+        <option value="2">Δυαδικό</option>
+        <option value="8">Οκταδικό</option>
+        <option value="10">Δεκαδικό</option>
+        <option value="16">Δεκαεξαδικό</option>
+    </select>
+
+    <select id="outputBase">
+        <option value="2">Δυαδικό</option>
+        <option value="8">Οκταδικό</option>
+        <option value="10">Δεκαδικό</option>
+        <option value="16">Δεκαεξαδικό</option>
+    </select>
+
+    <button onclick="convertNumber()">Μετατροπή</button>
+
+    <div id="output"></div>
+
+    <script>
+        let steps = [];
+        let currentStep = 0;
+        let finalResult = "";
+
+        function convertNumber() {
+            const input = document.getElementById('numberInput').value.trim();
+            const inputBase = parseInt(document.getElementById('inputBase').value);
+            const outputBase = parseInt(document.getElementById('outputBase').value);
+
+            if (!input) {
+                alert('Παρακαλώ πληκτρολόγησε έναν αριθμό!');
+                return;
+            }
+
+            steps = [];
+            currentStep = 0;
+            finalResult = "";
+            document.getElementById('output').innerHTML = "";
+
+            let decimalValue = 0;
+
+            if (inputBase === 2 && (outputBase === 8)) {
+                steps.push('Για να μετατρέψεις από Δυαδικό σε Οκταδικό, πρέπει πρώτα να μετατρέψεις τον αριθμό σε Δεκαδικό και μετά να κάνεις τη μετατροπή.');
+            }
+
+           if (inputBase === 2 && (outputBase === 16)) {
+                steps.push('Για να μετατρέψεις από Δυαδικό σε Δεκαεξαδικό, πρέπει πρώτα να μετατρέψεις τον αριθμό σε Δεκαδικό και μετά να κάνεις τη μετατροπή.');
+            }
+
+            if (outputBase === 10) {
+                let digits = input.split('').reverse();
+                for (let i = 0; i < digits.length; i++) {
+                    let digitValue = parseInt(digits[i], inputBase);
+                    if (isNaN(digitValue)) {
+                        alert('Λάθος αριθμός!');
+                        return;
+                    }
+                    let stepValue = digitValue * Math.pow(inputBase, i);
+                    decimalValue += stepValue;
+                    steps.push(`Ψηφίο: ${digits[i]} x ${inputBase}^${i} = ${stepValue}`);
+                }
+                steps.push('Αρκεί να τα προσθέσεις.');
+                finalResult = decimalValue.toString();
+            } else {
+                decimalValue = parseInt(input, inputBase);
+                if (isNaN(decimalValue)) {
+                    alert('Λάθος αριθμός!');
+                    return;
+                }
+                let value = decimalValue;
+                let digitsCount = 0;
+                while (value > 0) {
+                    let remainder = value % outputBase;
+                    steps.push(`${value} ÷ ${outputBase} = ${Math.floor(value / outputBase)} με υπόλοιπο ${remainder}`);
+                    finalResult = (outputBase === 16 ? remainder.toString(16).toUpperCase() : remainder) + finalResult;
+                    value = Math.floor(value / outputBase);
+                    digitsCount++;
+                }
+                if (steps.length === 0) {
+                    steps.push(`Ο αριθμός 0 στο σύστημα ${inputBase} είναι επίσης 0 στο σύστημα ${outputBase}.`);
+                    finalResult = "0";
+                }
+                if (digitsCount > 1) {
+                    steps.push('Βάλτα σε σειρά απο κάτω προς τα πάνω.');
+                }
+            }
+
+            showStep();
+        }
+
+        function showStep() {
+            if (currentStep < steps.length) {
+                document.getElementById('output').innerHTML += `
+                    <h3>Βήμα ${currentStep + 1}:</h3>
+                    <p>${steps[currentStep]}</p>
+                    <button onclick="nextStep()">Επόμενο Βήμα</button>
+                `;
+            } else {
+                document.getElementById('output').innerHTML += `<h2>Η μετατροπή ολοκληρώθηκε!</h2><p>Τελικό Αποτέλεσμα: ${finalResult}</p>`;
+            }
+        }
+
+        function nextStep() {
+            currentStep++;
+            showStep();
+        }
+    </script>
+</body>
+</html>
